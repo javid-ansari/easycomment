@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<buildpath>
+	<buildpathentry kind="con" path="org.eclipse.php.core.LANGUAGE"/>
+	<buildpathentry kind="src" path="app/auth"/>
+	<buildpathentry kind="src" path="app/comments"/>
+	<buildpathentry kind="src" path="app/admin"/>
+	<buildpathentry kind="lib" path="app/app.zip"/>
+</buildpath>
