@@ -154,6 +154,8 @@ if ($_SESSION['usertype']=="1"){
 									$parentData = $parentChkDataObj->fetch();
 									$contentID = !empty($parentData) && $parentData[0] ? $parentData[0] : $content_ref;
 									$type = 'commentanswer';
+								}else{
+									$contentID = $content_ref;
 								}
 								
 								if(!empty($commentData) && $commentData[0] > 0){
