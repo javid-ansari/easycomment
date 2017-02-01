@@ -152,7 +152,7 @@ $iconne="";$user_idne="Guest";
 -->
 </div>
 	</div>
-<div class="footer-logo"><a href="javascript:void(0);" onclick="showPages('about')"><img alt="<?php echo $db_sitemotto; ?>" src="<?php echo $db_siteadres ?>app/assets/logo.png"></a></div>
+<<div class="footer-logo"><a href="javascript:void(0);" onclick="showPages('about')"><img alt="<?php echo $db_sitemotto; ?>" src="<?php echo $db_siteadres ?>app/assets/logo.png" style="height: 30px;"></a></div>
 </div>
 <?php  }
 

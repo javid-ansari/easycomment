@@ -416,7 +416,7 @@ $iconne=resimcreate($icon,"s","member/avatar");
 						if(type=="commentcevap" || type=="commentcevapyanit"){
 						$('td:eq(2)', nRow).html("Reply of <a class='btn' href='?comment="+id+"' style='padding:1px 6px;'>#"+content_id+"</a> "); 
 						}else{
-						$('td:eq(2)', nRow).html(content_id+' <a href="'+type+'" class="btn" style="padding:1px 6px;" target="_blank"><i class="fa fa-external-link"></i></a>'); 
+						$('td:eq(2)', nRow).html(content_id+' <a href="?comment='+id+'" class="btn" style="padding:1px 6px;" target="_blank"><i class="fa fa-external-link"></i></a>'); 
 						}
 						
 						$('td:eq(3)', nRow).html('<span class="konu" style="color:#999;">'+comment.substr(0, 155)+'..</span>'); 

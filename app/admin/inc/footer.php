@@ -2,7 +2,9 @@
   <div class="footer-inner">
     <div class="container">
       <div class="row">
-        <div class="span12"> &copy; 2015 <a href="http://easycomment.akbilisim.com/">easyComment</a>. </div>
+        <div class="span12"> 
+        <?php echo $db_sitemotto; ?> © <?php echo date('Y'); ?>
+        </div>
         <!-- /span12 --> 
       </div>
       <!-- /row --> 
