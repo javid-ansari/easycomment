@@ -33,6 +33,7 @@
   ga('send', 'pageview');
 
 </script>
+<script src="../assets/iframeResizer.contentWindow.js"></script>
 </body>
 </html>
 <?php

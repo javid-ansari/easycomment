@@ -3,6 +3,7 @@
 include("inc/header.php"); 
 $yorumcontent_id=$C_id;
 include("request/commentsfunc.php"); 
+include("request/commentsSolrfunc.php");
 ?>
 
  <!-- add comment -->
@@ -114,8 +115,17 @@ $iconne="";$user_idne="Guest";
 			<div class="popular-comments" style="position: relative">'.$populeryorum.'</div>';
 	$digeryazi=$lang["COMMENT_LINK_5B"].' ';
  }
+ 
+ if(isset($_GET['solr']) && $_GET['solr'] == 'solr' ){
+ 	$tumyorum=getSolrComments($yorumcontent_id,"new",1,"tumu");
+ 	$satir_sayisi = getCommentsCount('content_ref:'.$commentcontent_id.'');
+ }else{
+ 	$tumyorum=commentget($yorumcontent_id,"new",1,"tumu");
+ 	$satir_sayisi  = $dbpdo->query("SELECT count(*) from comments where content_id = '".$yorumcontent_id."' and approve = '1'  and domainaccess = '$domainaccess'")->fetchColumn();
+ }
+ 
+ 
  ?>
-<?php  $satir_sayisi  = $dbpdo->query("SELECT count(*) from comments where content_id = '".$yorumcontent_id."' and approve = '1'  and domainaccess = '$domainaccess'")->fetchColumn(); ?>
  <h3 class="title"><span class="allcomments"><?php echo $digeryazi.$satir_sayisi; ?> <?php echo $lang["COMMENT_LINK_5C"]; ?></span>
  	<div class="short pull-right">
 		<a href="javascript:void(0);"  data-desc="best"><i class="fa fa-star"></i> <?php echo $lang["CB_7"]; ?></a>
@@ -125,7 +135,6 @@ $iconne="";$user_idne="Guest";
  </h3>
  <div class="comments" style="position: relative"><div class="form-loader"></div>
  <?php
- $tumyorum=commentget($yorumcontent_id,"new",1,"tumu");
  if($tumyorum>""){
 	 echo $tumyorum;
  }else{
