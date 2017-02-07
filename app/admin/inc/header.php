@@ -28,6 +28,8 @@ $seokisimnum=$seokisimnum-1;
 if(isset($seokisim[$seokisimnum])){
 $linksi=$seokisim[$seokisimnum];
 }
+
+if( !isset($_GET['hideHF'])){
 ?>
 <div class="navbar navbar-fixed-top">
   <div class="navbar-inner">
@@ -77,3 +79,4 @@ $linksi=$seokisim[$seokisimnum];
   <!-- /navbar-inner --> 
 </div>
 <!-- /navbar -->
+<?php }?>

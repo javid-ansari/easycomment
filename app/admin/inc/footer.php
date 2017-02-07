@@ -1,3 +1,4 @@
+<?php if( !isset($_GET['hideHF'])){?>
 <div class="footer">
   <div class="footer-inner">
     <div class="container">
@@ -13,8 +14,8 @@
   </div>
   <!-- /footer-inner --> 
 </div>
-
 <!-- /footer --> 
+<?php }?>
 <script src="../assets/bootstrap/js/jquery.min.js"></script> 
 <script src="../assets/bootstrap/js/bootstrap.js"></script>
 <script language="javascript" type="text/javascript" src="../assets/bootstrap/js/dataTables/jquery.dataTables.min.js"></script>
