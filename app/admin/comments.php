@@ -83,8 +83,8 @@ exit();
 							foreach(explode(",", $db_allowedsites) as $line){
 								if($line>""){
 
-								$sites=$sites."$line\r\n";
-								echo '<li><a href="?bysite='.$sites.'"> '.$sites.'</a></li>';
+								//$sites=$sites."$line\r\n";
+								echo '<li><a href="?bysite='.$line.'"> '.$line.'</a></li>';
 								}
 								
 							} 				
