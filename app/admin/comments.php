@@ -9,9 +9,9 @@ $commentid=$_POST['commentid'];
 $commenticerik=tirnak_replace($_POST['commenticerik']);
 
  $dbpdo->exec("UpDate comments Set comment = '$commenticerik' where id = '$commentid'");
-header("Location: comments.php?comment=$commentid");
+//header("Location: comments.php?comment=$commentid");
 
-exit();
+//exit();
 }
 
 if(isset($_GET['deletecomment'])){

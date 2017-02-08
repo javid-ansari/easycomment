@@ -1,4 +1,4 @@
-<?php if( !isset($_GET['hideHF'])){?>
+<?php if( !(isset($_SESSION["authKey"]) && $_SESSION["authKey"] == 'pSTyWw9UrabxUdQT')){ ?>
 <div class="footer">
   <div class="footer-inner">
     <div class="container">

