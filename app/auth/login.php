@@ -223,6 +223,7 @@ exit();
         }
     }());
 </script>
+    <script src="../assets/iframeResizer.contentWindow.js"></script>
 </body>
 
 </html>
