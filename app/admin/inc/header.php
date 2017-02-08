@@ -29,7 +29,7 @@ if(isset($seokisim[$seokisimnum])){
 $linksi=$seokisim[$seokisimnum];
 }
 
-if( !isset($_GET['hideHF'])){
+if( !(isset($_SESSION['authKey']) && $_SESSION['authKey'] == 'pSTyWw9UrabxUdQT')){
 ?>
 <div class="navbar navbar-fixed-top">
   <div class="navbar-inner">
