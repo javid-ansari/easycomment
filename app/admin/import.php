@@ -152,10 +152,11 @@ if ($_SESSION['usertype']=="1"){
 								if($comment->parentid != 0){
 									$parentChkDataObj  = $dbpdo->query("Select id from comments where source_id = '".$comment->parentid."'");
 									$parentData = $parentChkDataObj->fetch();
-									$contentID = !empty($parentData) && $parentData[0] ? $parentData[0] : $content_ref;
+								//	$contentID = !empty($parentData) && $parentData[0] ? $parentData[0] : $content_ref;
+									$contentID = $comment->articleId;
 									$type = 'commentanswer';
 								}else{
-									$contentID = $content_ref;
+									$contentID = $comment->articleId;// $content_ref;
 								}
 								
 								if(!empty($commentData) && $commentData[0] > 0){

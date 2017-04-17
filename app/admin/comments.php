@@ -328,7 +328,7 @@ $iconne=resimcreate($icon,"s","member/avatar");
 						
 						<th width="1%" style="text-align:left">#</th>
 						<th width="25%" style="text-align:left">By</th>	
-						<th width="14%" style="text-align:left">Identifier</th>	
+						<th width="14%" style="text-align:left">Content</th>	
 						<th width="40%">Comment</th>
 						<th width="20%" style="text-align:center">Setting</th>
 						</tr>
@@ -391,7 +391,8 @@ $iconne=resimcreate($icon,"s","member/avatar");
 						var content_id = aData[3]; // where 4 is the zero-origin column for 2D
 						var date = aData[4]; // where 4 is the zero-origin column for 2D
 						var id = aData[0]; // where 4 is the zero-origin column for 2D
-			
+						var content_title = aData[8]; // where 4 is the zero-origin column for 2D
+						var content_href = aData[9]; // where 4 is the zero-origin column for 2D
 			
 							
 						$('td:eq(0)', nRow).html('<em class="date">'+id+'</em>'); 
@@ -412,13 +413,14 @@ $iconne=resimcreate($icon,"s","member/avatar");
 							$('td:eq(1)', nRow).html('<a href="users.php?user='+seoslug+'"><img src="'+icon+'" style="width:35px;float:left;margin-right:8px;"><b style="float:left;font-weight:bold;">'+user_id+'</b><br><font size=2 color=#ccc>'+showDate(date)+'</font></a>'); 
 							});
 						}
-						
+						/*
 						if(type=="commentcevap" || type=="commentcevapyanit"){
 						$('td:eq(2)', nRow).html("Reply of <a class='btn' href='?comment="+id+"' style='padding:1px 6px;'>#"+content_id+"</a> "); 
 						}else{
 						$('td:eq(2)', nRow).html(content_id+' <a href="?comment='+id+'" class="btn" style="padding:1px 6px;" ><i class="fa fa-external-link"></i></a>'); 
-						}
-						
+						}*/
+						$('td:eq(2)', nRow).html('<a href="'+content_href+'" target="_blank">'+content_title.substr(0, 155)+'..</a>');
+					 		
 						$('td:eq(3)', nRow).html('<span class="konu" style="color:#999;">'+comment.substr(0, 155)+'..</span>'); 
 
 						$('td:eq(4)', nRow).attr("style", "text-align:center").html("<?php if(isset($_GET['unapproved'])){ ?><a class='btn btn-success' style='width:10px; margin-right: .5em;' href='?approve="+id+"'><i class='fa fa-check-square-o'></i></a><?php }?><a class='btn btn-primary' style='width:10px; margin-right: .5em;' href='?comment="+id+"'><i class='fa fa-cog'></i></a><a href='#myModal"+id+"' role='button' class='btn btn-success' style='width:10px; margin-right: .5em;' data-toggle='modal'><i class='fa fa-edit'></i></a><div id='myModal"+id+"' class='modal hide fade in' tabindex='-1' role='dialog' aria-labelledby='myModalLabel' aria-hidden='true'><div class='modal-header'><button type='button' class='close' data-dismiss='modal' aria-hidden='true'>×</button> <h3 id='myModalLabel'>Edit Comment : #"+id+"</h3></div> <form action='?commentedit2' method='post' enctype='multypeart/form-data'><div class='modal-body'><input class='input-style addon' name='commentid' id='commentid' type='hidden' value='"+id+"' style='width:350px'><textarea name='commenticerik'  class='inputug' style='width:98%;height:217px;'>"+comment+"</textarea></div> <div class='modal-footer'><button class='btn' data-dismiss='modal' aria-hidden='true'>Close</button><button class='btn btn-primary'>Save changes</button></div></form></div><a class='btn btn-danger' style='width:10px' onclick='return confirm(\"Do you realy want this?\");' href='?deletecomment="+id+"<?php if(isset($_GET['unapproved'])){ echo "&don=unapproved"; }else{ echo "&don=comments"; }?>'><i class='fa fa-remove'></i></a>"); 

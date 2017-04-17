@@ -28,7 +28,7 @@ require_once("../../comments/inc/config.php");
 	/* Array of database columns which should be read and sent back to DataTables. Use a space where
 	 * you want to insert a non-database field (for example a counter or static image)
 	 */
-	$aColumns = array( 'id', 'user_id' , 'type' , 'content_id' , 'date' , 'comment' , 'u_name' , 'u_email' );
+	$aColumns = array( 'id', 'user_id' , 'type' , 'content_ref' , 'date' , 'comment' , 'u_name' , 'u_email' , 'content_title','content_url');
 	
 	/* Indexed column (used for fast and accurate table cardinality) */
 	$sIndexColumn = "id";
