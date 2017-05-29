@@ -2,6 +2,114 @@
 require_once("../comments/inc/config.php"); 
 include 'inc/header.php';
 
+$options = array
+(
+		'hostname' => $cong["SOLR_SERVER_HOSTNAME"],
+		'path' 	   => $cong["SOLR_SERVER_PATH"],
+		'port'     => $cong["SOLR_SERVER_PORT"],
+);
+$client = new SolrClient($options);
+
+function addCommentDoc($commentid, $client, $dbpdo){
+	if(isset($commentid) && $commentid !='' && isset($client) && $client != NULL){
+		$yeniko  = $dbpdo->query("SELECT id , CONCAT('comment-',id) as comment_id, source_id, parent_id, `comment`, content_id, content_ref, content_url, content_title, site, user_id, u_name, u_email, DATE_FORMAT(STR_TO_DATE(`date`, '%Y%m%d%H%i%s'), '%Y-%m-%dT%H:%i:%sZ') AS formattedDate FROM comments where id = '$commentid' and approve=1 ");
+		
+		if($yeniko = $yeniko->fetch()){
+			$doc = new SolrInputDocument();
+			try {
+			$doc->addField("comment_id", $yeniko["id"] );			
+			$doc->addField("id", $yeniko["comment_id"] );		
+			$doc->addField("source_id" , $yeniko["source_id"] != NULL ? $yeniko["source_id"] : 0 );	
+			$doc->addField("parent_id" , $yeniko["parent_id"] != NULL ? $yeniko["parent_id"] : 0 );	
+			$doc->addField("comment" , $yeniko["comment"] );	
+			$doc->addField("content_id", $yeniko["content_id"]);		
+			$doc->addField("content_ref" , $yeniko["content_ref"] != NULL ? $yeniko["content_ref"] : "" );	
+			$doc->addField("content_url" , $yeniko["content_url"] != NULL ? $yeniko["content_url"] : "" );	
+			$doc->addField("content_title" , $yeniko["content_title"] != NULL ? $yeniko["content_title"] : "" );
+			$doc->addField("u_id" , $yeniko["user_id"] != NULL ? $yeniko["user_id"] : 0 );
+			$doc->addField("u_email" , $yeniko["u_email"] != NULL ? $yeniko["u_email"] : "" );
+			$doc->addField("u_name" , $yeniko["u_name"] != NULL ? $yeniko["u_name"] : "" );
+			$doc->addField("ds_created", $yeniko["formattedDate"] );
+			$doc->addField("site" , $yeniko["site"] );
+			
+			$updateResponse = $client->addDocument($doc);
+			$client->commit();
+			return true;
+			}catch (Exception $e) {
+				echo $e->getMessage();
+				exit;
+			}
+		}
+	}
+	return false;
+}
+
+function updateCommentDoc($commentid, $client, $dbpdo){
+	if(isset($commentid) && $commentid !='' && isset($client) && $client != NULL){
+		$yeniko  = $dbpdo->query("SELECT id , CONCAT('comment-',id) as comment_id, source_id, parent_id, `comment`, content_id, content_ref, content_url, content_title, site, user_id, u_name, u_email, DATE_FORMAT(STR_TO_DATE(`date`, '%Y%m%d%H%i%s'), '%Y-%m-%dT%H:%i:%sZ') AS formattedDate FROM comments where id = '$commentid' and approve=1 ");
+		
+		deleteCommentDoc($commentid, $client);
+		
+		if($yeniko = $yeniko->fetch()){
+			/*
+			 * TODO update doc
+			 */
+			
+			$doc = new SolrInputDocument();
+			try {	
+			$doc->addField("comment_id", $yeniko["id"] );			
+			$doc->addField("id", $yeniko["comment_id"] );		
+			$doc->addField("source_id" , $yeniko["source_id"] != NULL ? $yeniko["source_id"] : 0 );	
+			$doc->addField("parent_id" , $yeniko["parent_id"] != NULL ? $yeniko["parent_id"] : 0 );	
+			$doc->addField("comment" , $yeniko["comment"] );	
+			$doc->addField("content_id", $yeniko["content_id"]);		
+			$doc->addField("content_ref" , $yeniko["content_ref"] != NULL ? $yeniko["content_ref"] : "" );	
+			$doc->addField("content_url" , $yeniko["content_url"] != NULL ? $yeniko["content_url"] : "" );	
+			$doc->addField("content_title" , $yeniko["content_title"] != NULL ? $yeniko["content_title"] : "" );
+			$doc->addField("u_id" , $yeniko["user_id"] != NULL ? $yeniko["user_id"] : 0 );
+			$doc->addField("u_email" , $yeniko["u_email"] != NULL ? $yeniko["u_email"] : "" );
+			$doc->addField("u_name" , $yeniko["u_name"] != NULL ? $yeniko["u_name"] : "" );
+			$doc->addField("ds_created", $yeniko["formattedDate"] );
+			$doc->addField("site" , $yeniko["site"] );
+				
+			$updateResponse = $client->addDocument($doc);
+			$client->commit();
+			}catch (Exception $e) {
+				echo $e->getMessage();
+				exit;
+			}
+		}
+	}
+	return false;
+}
+
+function deleteCommentDoc($commentid, $client){
+	if(isset($commentid) && $commentid !='' && isset($client) && $client != NULL){
+			try {
+			$client->deleteByQuery('id:comment-'.$commentid.'');
+			$client->commit();
+			return true;
+			}catch (Exception $e) {
+				echo $e->getMessage();
+				exit;
+			}
+	}
+	return false;
+}
+
+if(isset($_GET['bysite'])){
+
+	$bysite = $_GET['bysite'];
+	$encoded_bysite=base64_encode($bysite);
+	
+
+}else if(isset($_POST['bysite'])){
+
+	$bysite = $_POST['bysite'];
+	$encoded_bysite=base64_encode($bysite);
+
+}
+
 
 if(isset($_GET['commentedit2'])){
 
@@ -9,6 +117,12 @@ $commentid=$_POST['commentid'];
 $commenticerik=tirnak_replace($_POST['commenticerik']);
 
  $dbpdo->exec("UpDate comments Set comment = '$commenticerik' where id = '$commentid'");
+ 
+ /*
+  * add comment doc to solr
+  */
+ updateCommentDoc($commentid, $client, $dbpdo);
+ 
 //header("Location: comments.php?comment=$commentid");
 
 //exit();
@@ -23,14 +137,19 @@ if(isset($_GET['deletecomment'])){
 	$dbpdo->exec("DELETE FROM likes where content_id = '$commentid' and likestype='comment'");
 	$dbpdo->exec("DELETE FROM flags where content_id = '$commentid' ");
 
+	/*
+	 * delete doc from solr
+	 */
+	deleteCommentDoc($commentid, $client);
+	
 	if ($don=="unapproved"){
-	header("Location: comments.php?unapproved");
+	header("Location: comments.php?unapproved".(isset($bysite) ? "&bysite=".$bysite : ""));
 		
 	}elseif ($don=="reports"){
-	header("Location: reports.php");
+	header("Location: reports.php".(isset($bysite) ? "?bysite=".$bysite : ""));
 		
 	}else{
-		header("Location: comments.php");
+		header("Location: comments.php".(isset($bysite) ? "?bysite=".$bysite : ""));
 		
 	
 	}
@@ -42,7 +161,14 @@ if(isset($_GET['approve'])){
 	$commentid=$_GET['approve'];
 
 	$dbpdo->exec("UpDate comments Set approve = '1' where id = '$commentid'");
-	header("Location: comments.php?unapproved");
+	
+	/*
+	 * add comment doc to solr
+	 */
+	addCommentDoc($commentid, $client, $dbpdo);
+	
+	//header("Location: comments.php?unapproved".(isset($bysite) ? "&bysite=".$bysite : ""));
+	header("Location: comments.php?".(isset($bysite) ? "bysite=".$bysite : ""));
 
 exit();
 }
@@ -58,9 +184,9 @@ exit();
 		<h2 class="pull-left">
 						  <i class="fa fa-comments red"></i>
 						  <?php if(isset($_GET['unapproved'])){ ?>
-						  <span>Unapproved Comments (<?php echo $dbpdo->query("select id from comments where approve = '0' ")->rowCount(); ?>)</span>
+						  <span>Unapproved Comments (<?php echo $dbpdo->query("select id from comments where approve = '0' ".(isset($encoded_bysite) && $encoded_bysite != '' ? 'AND domainaccess=\''.$encoded_bysite.'\'' : ''))->rowCount(); ?>)</span>
 						  <?php }else{ ?>
-						  <span>Comments (<a href="?unapproved"><font color="green"><?php echo $dbpdo->query("select id from comments where approve = '0' ")->rowCount(); ?> Unapproved</font></a>)</span>
+						  <span>Comments (<a href="?unapproved<?php if(isset($bysite)){ echo '&bysite='.$bysite; }?>"><font color="green"><?php echo $dbpdo->query("select id from comments where approve = '0' ".(isset($encoded_bysite) && $encoded_bysite != '' ? 'AND domainaccess=\''.$encoded_bysite.'\'' : ''))->rowCount(); ?> Unapproved</font></a>)</span>
 						  
 						  <?php } ?>
 		
@@ -69,10 +195,10 @@ exit();
 
 		
 					  <div class="btn-group">
-					  <a class="btn btn-primary" href="#"><i class="icon-user icon-white"></i><?php if(isset($_GET['bysite'])){ echo $_GET['bysite']; }else{ echo 'All'; } ?></a>
+					  <a class="btn btn-primary" href="#"><i class="icon-user icon-white"></i><?php if(isset($bysite)){ echo $bysite; }else{ echo 'All'; } ?></a>
 					  <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
 					  <ul class="dropdown-menu">
-					  <?php if(isset($_GET['bysite'])){ 
+					  <?php if(isset($bysite)){ 
 					
 					  echo '<li><a href="comments.php"> All</a></li>';
 								
@@ -377,7 +503,7 @@ $iconne=resimcreate($icon,"s","member/avatar");
 					 "order": [ 0, 'desc' ], 
 					"bProcessing": true,
 					"bServerSide": true,
-					"sAjaxSource": "posts/comments_processing.php<?php if(isset($_GET['unapproved'])){ echo '?unapproved'; if(isset($_GET['bysite'])){ echo '&bysite='.$_GET['bysite']; } }elseif(isset($_GET['bysite'])){ echo '?bysite='.$_GET['bysite']; }elseif(isset($_GET['onlyreplies'])){ echo '?onlyreplies'; } ?>",
+					"sAjaxSource": "posts/comments_processing.php<?php if(isset($_GET['unapproved'])){ echo '?unapproved'; if(isset($bysite)){ echo '&bysite='.$bysite; } }elseif(isset($bysite)){ echo '?bysite='.$bysite; }elseif(isset($_GET['onlyreplies'])){ echo '?onlyreplies'; } ?>",
 					"bPaginate":true, 
 					"sPaginationType":"full_numbers",
 					
@@ -401,7 +527,9 @@ $iconne=resimcreate($icon,"s","member/avatar");
 							$('td:eq(1)', nRow).html('<a href="javascript:void(0);" style="color:#000"><img src="'+resimcreate("","s","member/avatar")+'" style="width:35px;float:left;margin-right:8px;"><b style="float:left;font-weight:bold;">Guest ('+u_name+')</b><br><font size=2 color=#ccc>'+showDate(date)+'</font></a>'); 
 							
 						}else{
-											
+
+							$('td:eq(1)', nRow).html('<a href="javascript:void(0);" style="color:#000"><img src="'+resimcreate("","s","member/avatar")+'" style="width:35px;float:left;margin-right:8px;"><b style="float:left;font-weight:bold;">User ('+u_name+')</b><br><font size=2 color=#ccc>'+showDate(date)+'</font></a>');
+						/*					
 							var url = "posts/adminposts.php?action=uyebilgicek";
 							$.post(url, {id: user_id}, function (ajaxCevap) {
 						
@@ -411,7 +539,7 @@ $iconne=resimcreate($icon,"s","member/avatar");
 							var icon=resimcreate(chunks[1],"s","member/avatar");
 							var seoslug=chunks[2];
 							$('td:eq(1)', nRow).html('<a href="users.php?user='+seoslug+'"><img src="'+icon+'" style="width:35px;float:left;margin-right:8px;"><b style="float:left;font-weight:bold;">'+user_id+'</b><br><font size=2 color=#ccc>'+showDate(date)+'</font></a>'); 
-							});
+							});*/
 						}
 						/*
 						if(type=="commentcevap" || type=="commentcevapyanit"){
@@ -423,7 +551,7 @@ $iconne=resimcreate($icon,"s","member/avatar");
 					 		
 						$('td:eq(3)', nRow).html('<span class="konu" style="color:#999;">'+comment.substr(0, 155)+'..</span>'); 
 
-						$('td:eq(4)', nRow).attr("style", "text-align:center").html("<?php if(isset($_GET['unapproved'])){ ?><a class='btn btn-success' style='width:10px; margin-right: .5em;' href='?approve="+id+"'><i class='fa fa-check-square-o'></i></a><?php }?><a class='btn btn-primary' style='width:10px; margin-right: .5em;' href='?comment="+id+"'><i class='fa fa-cog'></i></a><a href='#myModal"+id+"' role='button' class='btn btn-success' style='width:10px; margin-right: .5em;' data-toggle='modal'><i class='fa fa-edit'></i></a><div id='myModal"+id+"' class='modal hide fade in' tabindex='-1' role='dialog' aria-labelledby='myModalLabel' aria-hidden='true'><div class='modal-header'><button type='button' class='close' data-dismiss='modal' aria-hidden='true'>×</button> <h3 id='myModalLabel'>Edit Comment : #"+id+"</h3></div> <form action='?commentedit2' method='post' enctype='multypeart/form-data'><div class='modal-body'><input class='input-style addon' name='commentid' id='commentid' type='hidden' value='"+id+"' style='width:350px'><textarea name='commenticerik'  class='inputug' style='width:98%;height:217px;'>"+comment+"</textarea></div> <div class='modal-footer'><button class='btn' data-dismiss='modal' aria-hidden='true'>Close</button><button class='btn btn-primary'>Save changes</button></div></form></div><a class='btn btn-danger' style='width:10px' onclick='return confirm(\"Do you realy want this?\");' href='?deletecomment="+id+"<?php if(isset($_GET['unapproved'])){ echo "&don=unapproved"; }else{ echo "&don=comments"; }?>'><i class='fa fa-remove'></i></a>"); 
+						$('td:eq(4)', nRow).attr("style", "text-align:center").html("<?php if(isset($_GET['unapproved'])){ ?><a class='btn btn-success' style='width:10px; margin-right: .5em;' href='?approve="+id+"<?php if(isset($bysite)){ echo '&bysite='.$bysite; }?>'><i class='fa fa-check-square-o'></i></a><?php }?><!--<a class='btn btn-primary' style='width:10px; margin-right: .5em;' href='?comment="+id+"<?php if(isset($bysite)){ echo '&bysite='.$bysite; }?>'><i class='fa fa-cog'></i></a>--><a href='#myModal"+id+"' role='button' class='btn btn-success' style='width:10px; margin-right: .5em;' data-toggle='modal'><i class='fa fa-edit'></i></a><div id='myModal"+id+"' class='modal hide fade in' tabindex='-1' role='dialog' aria-labelledby='myModalLabel' aria-hidden='true'><div class='modal-header'><button type='button' class='close' data-dismiss='modal' aria-hidden='true'>×</button> <h3 id='myModalLabel'>Edit Comment : #"+id+"</h3></div> <form action='?commentedit2' method='post' enctype='multypeart/form-data'><div class='modal-body'><input class='input-style addon' name='commentid' id='commentid' type='hidden' value='"+id+"' style='width:350px'><input class='input-style addon' name='bysite' id='bysite' type='hidden' value='<?php if(isset($bysite)){ echo $bysite; }?>' style='width:350px'><textarea name='commenticerik'  class='inputug' style='width:98%;height:217px;'>"+comment+"</textarea></div> <div class='modal-footer'><button class='btn' data-dismiss='modal' aria-hidden='true'>Close</button><button class='btn btn-primary'>Save changes</button></div></form></div><a class='btn btn-danger' style='width:10px' onclick='return confirm(\"Do you realy want this?\");' href='?deletecomment="+id+"<?php if(isset($_GET['unapproved'])){ echo "&don=unapproved"; }else{ echo "&don=comments"; }?><?php if(isset($bysite)){ echo '&bysite='.$bysite; }?>'><i class='fa fa-remove'></i></a>"); 
 						
 						return nRow;
 						

@@ -2,27 +2,27 @@
 require_once("../comments/inc/config.php");
 include 'inc/header.php';
 
-if ($_SESSION['usertype']=="1"){
+// if ($_SESSION['usertype']=="1"){
 
-}else{
+// }else{
 	?><script>
 		   
-			(function () {
-						alert("You must be logged in as an administrator.. Modaretors can not access settings.");
+// 			(function () {
+// 						alert("You must be logged in as an administrator.. Modaretors can not access settings.");
 
-						setTimeout(function () {
+// 						setTimeout(function () {
 						
-								window.location.href="index.php";
+// 								window.location.href="index.php";
 							
-						}, 250);
+// 						}, 250);
 			   
 			 
-			}());
+// 			}());
 		</script>
 		<?php
 
-	exit();
-	}
+// 	exit();
+// 	}
 
 
 
@@ -143,49 +143,52 @@ if ($_SESSION['usertype']=="1"){
 								$out_link = '';
 								$out_icon = '';
 								$userId = 0;
+								$type = 'comment';
 								$content_ref = $siteAbv."-".$comment->articleId;
 								$rsqam  = $dbpdo->query("Select count(*) from comments where source_id = '".$comment->id."'");
 								$commentData = $rsqam->fetch();
 								
-								$type = $siteDomain;
-								
 								if($comment->parentid != 0){
 									$parentChkDataObj  = $dbpdo->query("Select id from comments where source_id = '".$comment->parentid."'");
 									$parentData = $parentChkDataObj->fetch();
-								//	$contentID = !empty($parentData) && $parentData[0] ? $parentData[0] : $content_ref;
-									$contentID = $comment->articleId;
+									$contentID = !empty($parentData) && $parentData[0] ? $parentData[0] : $comment->articleId;
 									$type = 'commentanswer';
 								}else{
-									$contentID = $comment->articleId;// $content_ref;
+									$contentID = $comment->articleId;//$content_ref;
 								}
 								
 								if(!empty($commentData) && $commentData[0] > 0){
 									
 									//update
 									$return = $dbpdo->prepare("UpDate comments Set user_id = '$userId' ,  parent_id = '$comment->parentid' , 
-										source_id = '$comment->id' ,  comment = :comment, content_id = '$contentID' , content_ref = '$content_ref' , type = '$type' ,
+										source_id = '$comment->id' ,  comment = :comment, content_id = '$contentID' , content_ref = '$content_ref', content_title = :contentTitle, content_url = :contentURL , type = '$type' ,
 										domainaccess = '$siteDomainAccess' ,  date = '$comment->publishedDate' , spoiler = '$spoiler' ,  approve = '$state' , 
 										u_name = :u_name , u_email = :u_email , out_name = '$out_name' , out_link = '$out_link' ,  out_icon = '$out_icon' ,  u_ip = '$u_ip' 	 
 										where source_id = '$comment->id' and site = '$siteAbv'");
 									$return->bindParam(":comment",$comment->body);
 									$return->bindParam(":u_name",$comment->name);
 									$return->bindParam(":u_email",$comment->email);
+									
+									$return->bindParam(":contentTitle",$comment->articleTitle);
+									$return->bindParam(":contentURL",$comment->articleURL);
 										
 									$return = $return->execute();
 									
 								}else{
 									
 									
-									$return = $dbpdo->prepare("INSERT INTO comments (source_id,parent_id,user_id,comment,content_id,content_ref,type,domainaccess,date,spoiler,approve,
-											u_name,u_email,u_ip,out_id,out_name,out_link,out_icon,site) VALUES 
-											( :sourceId, :parentId, :userId , :comment , :contentID , :contentRef , :type , :domainaccess , :publishedDate, :spoiler, :db_commentsappow, 
-											:u_name, :u_email, :u_ip, :out_id, :out_name, :out_link, :out_icon, :site)");
+									$return = $dbpdo->prepare("INSERT INTO comments (source_id,parent_id,user_id,comment,content_id,content_ref,content_title,content_url,type,domainaccess,date,spoiler,approve,
+											u_name,u_email,u_ip,out_id,out_name,out_link,out_icon,site,is_migrated) VALUES 
+											( :sourceId, :parentId, :userId , :comment , :contentID , :contentRef , :contentTitle, :contentURL, :type , :domainaccess , :publishedDate, :spoiler, :db_commentsappow, 
+											:u_name, :u_email, :u_ip, :out_id, :out_name, :out_link, :out_icon, :site, 1)");
 									$return->bindParam(":userId",$userId);
 									$return->bindParam(":sourceId",$comment->id);
 									$return->bindParam(":parentId",$comment->parentid);
 									$return->bindParam(":comment",$comment->body);
 									$return->bindParam(":contentID",$contentID);
 									$return->bindParam(":contentRef",$content_ref);
+									$return->bindParam(":contentTitle",$comment->articleTitle);
+									$return->bindParam(":contentURL",$comment->articleURL);
 									$return->bindParam(":type",$type);
 									$return->bindParam(":domainaccess",$siteDomainAccess);
 									$return->bindParam(":publishedDate",$comment->publishedDate);
